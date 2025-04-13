@@ -15,10 +15,8 @@ const connection = mysql.createConnection({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    port: process.env.DB_PORT, // Make sure the port is defined in your .env if required
-    connectTimeout: 10000, // Increase timeout to 10 seconds
+    port: process.env.DB_PORT || 3306 
 });
-
 
 app.get('/', function (req, res) {
     var q = "SELECT COUNT(*) AS count FROM users";
