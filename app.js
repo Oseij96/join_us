@@ -1,7 +1,11 @@
 const express = require('express');
 const app = express();
 
-require('dotenv').config();
+const PORT = process.env.PORT || 8080;
+
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config();
+}
 
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
@@ -15,7 +19,15 @@ const connection = mysql.createConnection({
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
-    port: process.env.DB_PORT || 3306 
+    port: process.env.DB_PORT || 3306
+});
+
+connection.connect((err) => {
+    if (err) {
+        console.error('❌ Database connection failed:', err.stack);
+        return;
+    }
+    console.log('✅ Connected to MySQL database.');
 });
 
 app.get('/', function (req, res) {
@@ -50,6 +62,6 @@ app.post('/register', function (req, res) {
 //     res.send("You're lucky number is " + num);
 // });
 
-app.listen(8080, function () {
-    console.log('App listening on port 8080!');
+app.listen(PORT, () => {
+    console.log(`App listening on port ${PORT}!`);
 });
