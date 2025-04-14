@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 10000;
 
 if (process.env.NODE_ENV !== 'production') {
     require('dotenv').config();
@@ -62,6 +62,7 @@ app.post('/register', function (req, res) {
 //     res.send("You're lucky number is " + num);
 // });
 
-app.listen(PORT, () => {
-    console.log(`🚀 App listening on port ${PORT}`);
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 App listening on port ${PORT}`);
 });
