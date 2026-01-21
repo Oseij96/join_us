@@ -20,6 +20,7 @@ const connection = mysql.createConnection({
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     port: process.env.DB_PORT || 3306
+    ssl: true
 });
 
 connection.connect((err) => {
@@ -27,7 +28,7 @@ connection.connect((err) => {
         console.error('❌ Database connection failed:', err.stack);
         return;
     }
-    console.log('✅ Connected to MySQL database.');
+    console.log('✅ Connected to Aiven MySQL database.');
 });
 
 app.get('/', function (req, res) {
