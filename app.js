@@ -1,62 +1,58 @@
-import express from 'express';
-import mysql from 'mysql2/promise'; // promise version for async/await
-import bodyParser from 'body-parser';
-import dotenv from 'dotenv';
+const express = require('express');
+const app = express();
+
+const PORT = process.env.PORT || 10000;
 
 if (process.env.NODE_ENV !== 'production') {
-    dotenv.config();
+    require('dotenv').config();
 }
 
-const app = express();
-const PORT = process.env.PORT || 10000;
+const mysql = require('mysql2');
+const bodyParser = require('body-parser');
 
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Async IIFE to connect and start server
-(async () => {
-  try {
-    const connection = await mysql.createConnection({
-      host: process.env.DB_HOST,
-      port: process.env.DB_PORT,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      ssl: true // required for Aiven
-    });
+const connection = await mysql.createConnection({
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,    
+  user: process.env.DB_USER,       
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME                     
+});
 
-    console.log('✅ Connected to Aiven MySQL!');
+connection.connect((err) => {
+    if (err) {
+        console.error('❌ Database connection failed:', err.stack);
+        return;
+    }
+    console.log('✅ Connected to MySQL database.');
+});
 
-    // Routes
-    app.get('/', async (req, res) => {
-      try {
-        const [results] = await connection.execute('SELECT COUNT(*) AS count FROM users');
-        const count = results[0].count;
+app.get('/', function (req, res) {
+    var q = "SELECT COUNT(*) AS count FROM users";
+    connection.query(q, function (err, results) {
+        if (err) throw err;
+        var count = results[0].count;
+        // res.send(`Welcome to our homepage. Join us, there are ${count} users and counting!`);
         res.render('home', { data: count });
-      } catch (err) {
-        console.error(err);
-        res.status(500).send('Database error');
-      }
     });
+    // res.send('YOU HAVE REACHED THE HOME PAGE!');
+});
 
-    app.post('/register', async (req, res) => {
-      const person = { email: req.body.email };
-      try {
-        await connection.execute('INSERT INTO users SET ?', [person]);
-        res.redirect('/');
-      } catch (err) {
-        console.error(err);
-        res.status(500).send('Error occurred during registration.');
-      }
+app.post('/register', function (req, res) {
+    const person = { email: req.body.email };
+    connection.query('INSERT INTO users SET ?', person, function (err, result) {
+        if (err) {
+            console.log(err);
+            res.status(500).send("Error occurred during registration.");
+            return;
+        }
+        res.redirect("/");
     });
+});
 
-    // Start server
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`🚀 App listening on port ${PORT}`);
-    });
-
-  } catch (err) {
-    console.error('❌ Database connection failed:', err.stack);
-  }
-})();
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 App listening on port ${PORT}`);
+});
