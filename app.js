@@ -14,7 +14,7 @@ app.set('view engine', 'ejs');
 app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const connection = await mysql.createConnection({
+const connection = mysql.createConnection({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,    
   user: process.env.DB_USER,       
